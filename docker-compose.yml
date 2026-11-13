@@ -1,0 +1,56 @@
+services:
+  worker1:
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile.cluster
+    image: epidemic-node
+    container_name: epidemic-worker1
+    hostname: worker1
+    environment:
+      - NODE_ROLE=worker
+    volumes:
+      - .:/workspace
+    networks:
+      - epidemic-net
+    ports:
+      - "2221:22"
+    restart: unless-stopped
+
+  worker2:
+    image: epidemic-node
+    container_name: epidemic-worker2
+    hostname: worker2
+    environment:
+      - NODE_ROLE=worker
+    volumes:
+      - .:/workspace
+    networks:
+      - epidemic-net
+    ports:
+      - "2222:22"
+    restart: unless-stopped
+    depends_on:
+      - worker1
+
+  master:
+    image: epidemic-node
+    container_name: epidemic-master
+    hostname: master
+    environment:
+      - NODE_ROLE=master
+    volumes:
+      - .:/workspace
+    networks:
+      - epidemic-net
+    ports:
+      - "8000:8000"
+      - "2220:22"
+    depends_on:
+      - worker1
+      - worker2
+    restart: unless-stopped
+
+networks:
+  epidemic-net:
+    driver: bridge
+    name: epidemic-net

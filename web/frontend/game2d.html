@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de Epidemias — Provincias de Tarija</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b1120;color:#e2e8f0;font-family:system-ui,"Segoe UI",Roboto,sans-serif;font-size:12.5px;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+header{padding:8px 16px;border-bottom:1px solid #1e3a5f;display:flex;align-items:center;gap:12px;flex-shrink:0;background:#0c1322}
+header h1{font-size:15px;font-weight:700}
+header small{color:#64748b;font-size:11px}
+
+.layout{display:grid;grid-template-columns:310px 1fr;flex:1;min-height:0}
+
+/* ---- Sidebar ---- */
+aside{padding:12px 14px;border-right:1px solid #1e3a5f;overflow-y:auto;display:flex;flex-direction:column;gap:9px;background:#0c1322}
+.sec{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin-bottom:4px;display:flex;justify-content:space-between}
+
+.epi-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;max-height:190px;overflow-y:auto;padding-right:2px}
+.epi-btn{padding:6px 8px;border:1px solid #1e3a5f;border-radius:7px;background:#0f1f3d;cursor:pointer;color:#e2e8f0;text-align:left;transition:all .15s}
+.epi-btn:hover{border-color:#3b82f6}
+.epi-btn .ico{font-size:15px;display:block;line-height:1}
+.epi-btn .lbl{font-size:10.5px;font-weight:600;display:block;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.epi-btn .r0{font-size:9.5px;color:#94a3b8}
+.epi-btn.sel{border-color:#3b82f6;background:#172554;box-shadow:0 0 0 1px #3b82f6 inset}
+
+.ctrl-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:11.5px}
+.ctrl-row .val{font-family:ui-monospace,monospace;color:#93c5fd;min-width:40px;text-align:right;font-weight:600}
+input[type=range]{width:100%;accent-color:#3b82f6;margin-top:2px;cursor:pointer}
+select{width:100%;background:#0f1f3d;border:1px solid #1e3a5f;border-radius:6px;color:#e2e8f0;padding:5px 7px;margin-top:3px;font-size:12px}
+
+/* Age group sliders styling */
+.age-box{background:#081020;border:1px solid #1e3a5f;border-radius:8px;padding:8px;margin-top:3px}
+.age-row{display:flex;flex-direction:column;gap:1px;margin-bottom:7px}
+.age-header{display:flex;justify-content:space-between;font-size:11.5px}
+
+.btn-run{width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13.5px;cursor:pointer;margin-top:4px;transition:background .2s}
+.btn-run:hover:not(:disabled){background:#1d4ed8}
+.btn-run:disabled{opacity:.5;cursor:wait}
+
+.status{font-size:11px;color:#94a3b8;text-align:center;padding:3px 0;min-height:24px;line-height:1.3}
+.disclaimer{font-size:9.5px;color:#475569;line-height:1.3;margin-top:auto}
+
+/* ---- Map side ---- */
+.map-side{display:flex;flex-direction:column;min-height:0;padding:10px;gap:7px;background:#060d1a}
+
+.canvas-wrap{flex:1;min-height:0;position:relative;background:#1e293b;border-radius:10px;border:1px solid #1e3a5f;overflow:hidden;display:flex;align-items:center;justify-content:center}
+canvas#map{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+
+/* Day & Play controls */
+.day-row{display:flex;align-items:center;gap:10px;padding:7px 12px;background:#0f1f3d;border-radius:8px;border:1px solid #1e3a5f;flex-shrink:0}
+.btn-play{background:#2563eb;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-play:hover{background:#1d4ed8}
+.btn-play:disabled{opacity:.4;cursor:not-allowed}
+.day-lbl{font-family:ui-monospace,monospace;font-size:12px;font-weight:700;min-width:60px}
+#daySlider{flex:1;accent-color:#3b82f6;cursor:pointer}
+.spd-hint{font-size:11px;color:#94a3b8;white-space:nowrap}
+
+/* Stats strip: Recuperados en AZUL (#3b82f6) y Fallecidos en NEGRO (#09090b o borde contrastado) */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex-shrink:0}
+.stat{padding:6px 10px;border-radius:8px;border:1px solid #1e3a5f;background:#0f1f3d}
+.stat .lbl{font-size:9.5px;text-transform:uppercase;color:#94a3b8;letter-spacing:.05em}
+.stat .val{font-size:16px;font-weight:800;font-family:ui-monospace,monospace;margin-top:1px}
+.ss .val{color:#22c55e} 
+.si .val{color:#ef4444} 
+.sr .val{color:#3b82f6} /* Azul para Recuperados */
+.sd .val{color:#e2e8f0;text-shadow:0 0 4px #000;background:#050505;padding:1px 6px;border-radius:4px;display:inline-block;border:1px solid #334155} /* Negro para Fallecidos */
+
+/* Legend */
+.legend{display:flex;gap:14px;font-size:11px;color:#94a3b8;align-items:center;flex-shrink:0}
+.ld{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+
+/* Tooltip */
+#tt{position:fixed;background:rgba(8,15,35,.97);border:1px solid #3b82f6;border-radius:8px;padding:8px 12px;font-size:11px;pointer-events:none;z-index:9999;display:none;min-width:170px}
+#tt .tc{font-weight:700;color:#93c5fd;margin-bottom:4px;font-size:12px}
+#tt .tr{display:flex;justify-content:space-between;gap:12px;padding:1px 0}
+
+/* ---- Panel de clúster (Master / Worker 1 / Worker 2) ---- */
+.exec-note{font-size:10px;color:#64748b;line-height:1.3;margin-top:4px}
+#cluster{flex-shrink:0;display:none;flex-direction:column;gap:5px}
+#cluster.on{display:flex}
+#clusterBanner{font-size:10.5px;padding:4px 8px;border-radius:6px;border:1px solid #1e3a5f;background:#0f1f3d;color:#cbd5e1;font-family:ui-monospace,monospace}
+#clusterBanner.k-docker{border-color:#22c55e;color:#86efac}
+#clusterBanner.k-local{border-color:#fbbf24;color:#fde68a}
+#clusterBanner.k-shim{border-color:#ef4444;color:#fca5a5}
+#clusterCards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ncard{background:#081020;border:2px solid var(--c);border-radius:0;padding:5px 7px;font-family:ui-monospace,monospace;font-size:10px;line-height:1.35;box-shadow:3px 3px 0 #050a16;min-width:0}
+.ncard .nh{display:flex;align-items:center;gap:6px;font-weight:800;font-size:11px;color:var(--c);text-transform:uppercase}
+.ncard .led{width:8px;height:8px;background:var(--c);box-shadow:0 0 0 1px #050a16;animation:ledpulse .5s steps(2) 2}
+@keyframes ledpulse{0%{transform:scale(1.9);opacity:1}50%{opacity:.35}100%{transform:scale(1);opacity:1}}
+.ncard .st{margin-left:auto;font-weight:600;color:#94a3b8;text-transform:none;font-size:9.5px}
+.ncard .nr{display:flex;justify-content:space-between;gap:6px;color:#94a3b8}
+.ncard .nr b{color:#e2e8f0;font-weight:600;text-align:right}
+.ncard .mun{color:#cbd5e1;font-size:9.5px;margin:2px 0;white-space:normal;word-break:break-word}
+.ncard .bar{height:7px;background:#0f1f3d;border:1px solid #1e3a5f;margin-top:3px;display:flex;image-rendering:pixelated}
+.ncard .bar i{display:block;height:100%}
+.ncard .bar .bc{background:var(--c)} .ncard .bar .bm{background:#22d3ee}
+.sw{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:middle;border:1px solid #050a16}
+</style>
+</head>
+<body>
+<header>
+  <h1>🗺️ Simulador de Epidemias — Provincias de Tarija</h1>
+</header>
+
+<div class="layout">
+  <aside>
+    <div>
+      <div class="sec">1 · Epidemia</div>
+      <div class="epi-grid" id="epiGrid"></div>
+    </div>
+
+    <div>
+      <div class="sec">2 · Foco del brote</div>
+      <select id="seedNode"></select>
+    </div>
+
+    <div>
+      <div class="sec">3 · Medidas y parámetros</div>
+
+      <div class="ctrl-row"><span>Días a simular</span><span class="val" id="v-days">60</span></div>
+      <input type="range" id="s-days" min="10" max="180" step="5" value="60">
+
+      <div class="ctrl-row"><span>Infectados iniciales</span><span class="val" id="v-inf">100</span></div>
+      <input type="range" id="s-inf" min="1" max="500" step="5" value="100">
+
+      <div class="ctrl-row"><span>😷 Uso de mascarilla</span><span class="val" id="v-msk" style="color:#6ee7b7">30 %</span></div>
+      <input type="range" id="s-msk" min="0" max="0.95" step="0.05" value="0.30" style="accent-color:#10b981">
+
+      <div class="ctrl-row"><span>Contactos / persona / día</span><span class="val" id="v-con">10</span></div>
+      <input type="range" id="s-con" min="2" max="30" step="1" value="10">
+
+      <div class="ctrl-row"><span>Movilidad interprovincial</span><span class="val" id="v-mob">3 %</span></div>
+      <input type="range" id="s-mob" min="0.005" max="0.15" step="0.005" value="0.03">
+    </div>
+
+    <div>
+      <div class="sec">
+        <span>4 · Distribución poblacional por edades</span>
+        <span id="ageSum" style="font-family:monospace;color:#22c55e">100%</span>
+      </div>
+      <div class="age-box">
+        <!-- 0 a 19 años -->
+        <div class="age-row">
+          <div class="age-header">
+            <span>🧒 0-19 años</span>
+            <b id="v-age-0" style="color:#93c5fd">35%</b>
+          </div>
+          <input type="range" class="age-slider" data-idx="0" min="0" max="100" value="35">
+        </div>
+
+        <!-- 20 a 39 años -->
+        <div class="age-row">
+          <div class="age-header">
+            <span>🧑 20-39 años</span>
+            <b id="v-age-1" style="color:#93c5fd">32%</b>
+          </div>
+          <input type="range" class="age-slider" data-idx="1" min="0" max="100" value="32">
+        </div>
+
+        <!-- 40 a 59 años -->
+        <div class="age-row">
+          <div class="age-header">
+            <span>👨 40-59 años</span>
+            <b id="v-age-2" style="color:#93c5fd">21%</b>
+          </div>
+          <input type="range" class="age-slider" data-idx="2" min="0" max="100" value="21">
+        </div>
+
+        <!-- 60+ años -->
+        <div class="age-row" style="margin-bottom:0">
+          <div class="age-header">
+            <span>👴 60+ años</span>
+            <b id="v-age-3" style="color:#93c5fd">12%</b>
+          </div>
+          <input type="range" class="age-slider" data-idx="3" min="0" max="100" value="12">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec">5 · Ejecución</div>
+      <select id="execMode">
+        <option value="net">Local · proceso único</option>
+        <option value="mpi">Clúster · Master + Worker 1 + Worker 2 (MPI)</option>
+      </select>
+      <div class="exec-note" id="execNote">Un solo proceso simula los 11 municipios.</div>
+    </div>
+
+    <button class="btn-run" id="btnRun">▶ Simular</button>
+    <div class="status" id="status">Ajusta los parámetros y pulsa <b>Simular</b>.</div>
+
+    <div class="disclaimer">⚠️ Herramienta académica. Parámetros históricos y clínicos calibrados.</div>
+  </aside>
+
+  <div class="map-side">
+    <div class="canvas-wrap">
+      <canvas id="map"></canvas>
+    </div>
+
+    <div class="day-row">
+      <button class="btn-play" id="btnPlay" disabled>▶ Reproducir</button>
+      <span class="day-lbl" id="dayLbl">Día 0</span>
+      <input type="range" id="daySlider" min="0" max="0" value="0" step="1" disabled>
+      <span class="spd-hint" id="peakInfo"></span>
+    </div>
+
+    <div class="stats">
+      <div class="stat ss"><div class="lbl">Susceptibles</div><div class="val" id="ss">—</div></div>
+      <div class="stat si"><div class="lbl">Infectados</div><div class="val" id="si">—</div></div>
+      <div class="stat sr"><div class="lbl">Recuperados</div><div class="val" id="sr">—</div></div>
+      <div class="stat sd"><div class="lbl">Fallecidos</div><div class="val" id="sd">—</div></div>
+    </div>
+
+    <div id="cluster">
+      <div id="clusterBanner"></div>
+      <div id="clusterCards"></div>
+    </div>
+
+    <div class="legend">
+      <span><span class="ld" style="background:#22c55e"></span>Susceptible</span>
+      <span><span class="ld" style="background:#ef4444"></span>Infectado</span>
+      <span><span class="ld" style="background:#3b82f6"></span>Recuperado</span>
+      <span><span class="ld" style="background:#09090b;border:1px solid #e2e8f0"></span>Fallecido</span>
+      <span><span class="ld" style="background:#fbbf24;border:1px solid #050a16"></span>Salto interno (mismo worker)</span>
+      <span><span class="ld" style="background:#22d3ee;border:1px solid #050a16"></span>Mensaje MPI (cruza de worker)</span>
+      <span id="legendWorkers" style="display:none"><span class="sw" style="background:#fb923c"></span>Worker 1 <span class="sw" style="background:#f472b6;margin-left:6px"></span>Worker 2 (borde del municipio)</span>
+      <span style="margin-left:auto;font-size:11px;color:#64748b">Pasa el cursor sobre cada municipio para ver detalles</span>
+    </div>
+  </div>
+</div>
+
+<div id="tt">
+  <div class="tc" id="tt-name"></div>
+  <div class="tr"><span style="color:#22c55e">Susceptibles</span><span id="tt-s"></span></div>
+  <div class="tr"><span style="color:#ef4444">Infectados</span><span id="tt-i"></span></div>
+  <div class="tr"><span style="color:#3b82f6">Recuperados</span><span id="tt-r"></span></div>
+  <div class="tr"><span style="color:#e2e8f0;background:#050505;padding:0 4px;border-radius:3px">Fallecidos</span><span id="tt-d"></span></div>
+  <div class="tr"><span style="color:#fbbf24">Nuevos hoy</span><span id="tt-n"></span></div>
+  <div class="tr" style="margin-top:4px;border-top:1px solid #1e3a5f;padding-top:4px"><span style="color:#94a3b8">% infectado</span><span id="tt-pct"></span></div>
+  <div class="tr" id="tt-wrow" style="display:none"><span style="color:#22d3ee">Lo simula</span><span id="tt-w"></span></div>
+</div>
+
+<script src="js/tarija_pixelmap.js"></script>
+<script src="js/game2d.js"></script>
+</body>
+</html>

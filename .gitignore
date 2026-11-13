@@ -1,0 +1,14 @@
+# Binarios compilados
+*.o
+epidemic_sim
+epidemic_sim_mpi
+epidemic_sim_mpi_shim
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Resultados de simulación (excepto benchmarks de referencia)
+results/simulations/*
+!results/simulations/bench_*
+results/snapshots/

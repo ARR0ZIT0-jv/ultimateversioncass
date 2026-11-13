@@ -1,0 +1,149 @@
+{
+  "_aviso": "Parametros epidemiologicos calibrados con literatura medica OMS / CDC / OPS e historica.",
+  "epidemias": [
+    {
+      "id": "covid19",
+      "nombre": "COVID-19",
+      "icono": "🦠",
+      "color": "#ef4444",
+      "r0": 1.7,
+      "infeccioso_min": 5,
+      "infeccioso_max": 8,
+      "contactos": 10,
+      "descripcion": "Pandemia 2020. Transmisión respiratoria por aerosoles. Mayor gravedad en mayores de 60 años.",
+      "beta": 0.026,
+      "mortalidad_por_edad": {
+        "0_19": 0.0005,
+        "20_39": 0.003,
+        "40_59": 0.025,
+        "60_mas": 0.095
+      }
+    },
+    {
+      "id": "gripe_espanola",
+      "nombre": "Gripe Española (1918)",
+      "icono": "💀",
+      "color": "#dc2626",
+      "r0": 2.0,
+      "infeccioso_min": 4,
+      "infeccioso_max": 7,
+      "contactos": 10,
+      "descripcion": "Gripe H1N1 de 1918. Gran mortalidad por tormenta de citocinas afectando a adultos jóvenes.",
+      "beta": 0.035,
+      "mortalidad_por_edad": {
+        "0_19": 0.025,
+        "20_39": 0.075,
+        "40_59": 0.045,
+        "60_mas": 0.090
+      }
+    },
+    {
+      "id": "peste_negra",
+      "nombre": "Peste Negra (Y. pestis)",
+      "icono": "🐀",
+      "color": "#111827",
+      "r0": 1.8,
+      "infeccioso_min": 3,
+      "infeccioso_max": 6,
+      "contactos": 10,
+      "descripcion": "Pandemia medieval devastadora (pulgas y neumónica). Letalidad catastrófica sin antibióticos.",
+      "beta": 0.038,
+      "mortalidad_por_edad": {
+        "0_19": 0.50,
+        "20_39": 0.45,
+        "40_59": 0.55,
+        "60_mas": 0.70
+      }
+    },
+    {
+      "id": "ebola",
+      "nombre": "Ébola (África Occidental)",
+      "icono": "🩸",
+      "color": "#b91c1c",
+      "r0": 1.5,
+      "infeccioso_min": 6,
+      "infeccioso_max": 10,
+      "contactos": 6,
+      "descripcion": "Fiebre hemorrágica transmitida por fluidos corporales directos. Letalidad extrema (~50%).",
+      "beta": 0.032,
+      "mortalidad_por_edad": {
+        "0_19": 0.45,
+        "20_39": 0.40,
+        "40_59": 0.52,
+        "60_mas": 0.68
+      }
+    },
+    {
+      "id": "influenza",
+      "nombre": "Influenza estacional",
+      "icono": "🤧",
+      "color": "#f59e0b",
+      "r0": 1.3,
+      "infeccioso_min": 3,
+      "infeccioso_max": 5,
+      "contactos": 10,
+      "descripcion": "Gripe común estacional. Período corto (3-5 días). Cuadro leve en personas sanas.",
+      "beta": 0.024,
+      "mortalidad_por_edad": {
+        "0_19": 0.0004,
+        "20_39": 0.0008,
+        "40_59": 0.003,
+        "60_mas": 0.018
+      }
+    },
+    {
+      "id": "colera",
+      "nombre": "Cólera (V. cholerae)",
+      "icono": "💧",
+      "color": "#0284c7",
+      "r0": 1.6,
+      "infeccioso_min": 3,
+      "infeccioso_max": 6,
+      "contactos": 8,
+      "descripcion": "Gastroenteritis aguda severa transmitida por agua/alimentos contaminados. Deshidratación rápida.",
+      "beta": 0.030,
+      "mortalidad_por_edad": {
+        "0_19": 0.08,
+        "20_39": 0.03,
+        "40_59": 0.05,
+        "60_mas": 0.15
+      }
+    },
+    {
+      "id": "dengue",
+      "nombre": "Dengue (Epidemia Chaco)",
+      "icono": "🦟",
+      "color": "#e11d48",
+      "r0": 1.5,
+      "infeccioso_min": 4,
+      "infeccioso_max": 7,
+      "contactos": 10,
+      "descripcion": "Transmitido por mosquitos Aedes en Yacuiba, Bermejo y Villamontes. Riesgo de dengue hemorrágico.",
+      "beta": 0.025,
+      "mortalidad_por_edad": {
+        "0_19": 0.0025,
+        "20_39": 0.0015,
+        "40_59": 0.005,
+        "60_mas": 0.028
+      }
+    },
+    {
+      "id": "viruela",
+      "nombre": "Viruela (Histórica)",
+      "icono": "🌑",
+      "color": "#78350f",
+      "r0": 3.5,
+      "infeccioso_min": 10,
+      "infeccioso_max": 14,
+      "contactos": 8,
+      "descripcion": "Viruela mayor clásica antes de ser erradicada en 1980. Alta contagiosidad y cicatrices desfigurantes.",
+      "beta": 0.036,
+      "mortalidad_por_edad": {
+        "0_19": 0.35,
+        "20_39": 0.25,
+        "40_59": 0.30,
+        "60_mas": 0.45
+      }
+    }
+  ]
+}
